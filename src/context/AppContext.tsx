@@ -51,7 +51,7 @@ interface AppContextType {
   toggleTheme: () => void;
 
   // Active Screen
-  activeTab: 'command_center' | 'pipeline' | 'customer_360' | 'recovery_queue' | 'integrations' | 'team' | 'audit_log' | 'settings';
+  activeTab: 'command_center' | 'pipeline' | 'customer_360' | 'recovery_queue' | 'appointments' | 'integrations' | 'team' | 'reports' | 'audit_log' | 'settings';
   setActiveTab: (tab: any) => void;
   selectedContactId: string | null;
   setSelectedContactId: (id: string | null) => void;
@@ -146,7 +146,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
-  const [activeTab, setActiveTab] = useState<'command_center' | 'pipeline' | 'customer_360' | 'recovery_queue' | 'integrations' | 'team' | 'audit_log' | 'settings'>('command_center');
+  const [activeTab, setActiveTab] = useState<'command_center' | 'pipeline' | 'customer_360' | 'recovery_queue' | 'appointments' | 'integrations' | 'team' | 'reports' | 'audit_log' | 'settings'>('command_center');
   const [selectedContactId, setSelectedContactId] = useState<string | null>('cnt-1');
 
   // Application Data States
@@ -506,6 +506,28 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       after_value: { assigned_to: assignedUser?.name, source: data.source, window_s: newLead.acknowledgement_window_seconds }
     });
 
+    // Authoritative backend persistence
+    fetch('/api/leads', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-workspace-id': activeWorkspaceId,
+        'x-user-id': currentUser.id
+      },
+      body: JSON.stringify({
+        contact_name: data.contact_name,
+        contact_email: data.contact_email,
+        contact_phone: data.contact_phone,
+        company_name: data.company_name,
+        source: data.source,
+        value: data.value,
+        notes: data.notes,
+        custom_fields: data.custom_fields
+      })
+    }).then(res => {
+      if (res.ok) syncWithBackend();
+    }).catch(e => console.error('Failed to persist lead to backend', e));
+
     showToast(`🎯 New Lead captured: "${data.contact_name}". Assigned to ${assignedUser?.name}`, 'success');
     return newLead;
   };
@@ -543,6 +565,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       details: `Acknowledged within SLA by ${currentUser.name}. Time to first response: ${responseSeconds} seconds.`,
       after_value: { response_time_seconds: Number(responseSeconds), acknowledged_at: ackTime }
     });
+
+    // Authoritative backend persistence
+    fetch(`/api/leads/${leadId}/acknowledge`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-workspace-id': activeWorkspaceId,
+        'x-user-id': currentUser.id
+      }
+    }).then(res => {
+      if (res.ok) syncWithBackend();
+    }).catch(e => console.error('Failed to acknowledge lead on backend', e));
 
     showToast(`✅ Lead acknowledged! Time to response: ${responseSeconds}s`, 'success');
   };
@@ -592,6 +626,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       details: `Manual escalation by ${currentUser.name} to ${nextUser.name}. Reason: ${reason}`,
       after_value: { assigned_to: nextUser.name, level: nextLevel }
     });
+
+    // Authoritative backend persistence
+    fetch(`/api/leads/${leadId}/escalate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-workspace-id': activeWorkspaceId,
+        'x-user-id': currentUser.id
+      },
+      body: JSON.stringify({ reason })
+    }).then(res => {
+      if (res.ok) syncWithBackend();
+    }).catch(e => console.error('Failed to escalate on backend', e));
 
     showToast(`Lead escalated to ${nextUser.name} & added to Recovery Queue`, 'warning');
   };
@@ -662,6 +709,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       after_value: { availability }
     });
 
+    // Authoritative backend persistence
+    fetch(`/api/users/${userId}/availability`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-workspace-id': activeWorkspaceId,
+        'x-user-id': currentUser.id
+      },
+      body: JSON.stringify({ availability })
+    }).then(res => {
+      if (res.ok) syncWithBackend();
+    }).catch(e => console.error('Failed to update availability on backend', e));
+
     // F3.6: Reassignment on absence: Setting an employee to On leave or Offline immediately reassigns their unacknowledged leads
     if (availability === 'on_leave' || availability === 'offline') {
       const unackLeads = leads.filter(l => l.workspace_id === activeWorkspaceId && l.assigned_to_user_id === userId && l.status === 'unacknowledged');
@@ -698,6 +758,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     const merged = { ...targetUser.permissions, ...newPermissions };
     setUsers(prev => prev.map(u => u.id === userId ? { ...u, permissions: merged } : u));
+
+    // Authoritative backend persistence
+    fetch(`/api/users/${userId}/permissions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-workspace-id': activeWorkspaceId,
+        'x-user-id': currentUser.id
+      },
+      body: JSON.stringify({ permissions: newPermissions })
+    }).then(res => {
+      if (res.ok) syncWithBackend();
+    }).catch(e => console.error('Failed to update permissions on backend', e));
 
     addAuditEntry({
       actor_user_id: currentUser.id,

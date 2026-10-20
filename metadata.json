@@ -1,0 +1,6 @@
+{
+  "name": "LeadFlow - Unified Business Operations & Lead Recovery Platform",
+  "description": "Multi-tenant business management platform with customizable CRM, zero-lead-loss automatic assignment, real-time SLA escalation, external BizSMS/WhatsApp integrations, and tamper-proof audit trails.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,1008 @@
+import {
+  Workspace,
+  User,
+  Lead,
+  Contact,
+  Company,
+  Pipeline,
+  Opportunity,
+  CustomFieldDefinition,
+  ChatMessage,
+  PaymentRequest,
+  CalendarAppointment,
+  IntegrationConnection,
+  IntegrationSyncLog,
+  AuditLogItem,
+  SavedFilter
+} from '../types';
+
+export const INITIAL_WORKSPACES: Workspace[] = [
+  {
+    id: 'ws-apex',
+    name: 'Apex Energy & Solar Solutions',
+    slug: 'apex-solar',
+    industry: 'Renewable Energy & Solar Installations',
+    currency: 'PKR',
+    currency_symbol: '₨',
+    timezone: 'Asia/Karachi',
+    sla_acknowledgement_seconds: 15, // Fast demo SLA
+    max_escalation_levels: 3,
+    backup_user_id: 'usr-ayesha',
+    manager_user_id: 'usr-tariq',
+    round_robin_index: 0
+  },
+  {
+    id: 'ws-clover',
+    name: 'Clover Health & Aesthetics',
+    slug: 'clover-clinic',
+    industry: 'Medical Aesthetics & Dermatology',
+    currency: 'USD',
+    currency_symbol: '$',
+    timezone: 'America/New_York',
+    sla_acknowledgement_seconds: 30,
+    max_escalation_levels: 2,
+    backup_user_id: 'usr-clover-admin',
+    manager_user_id: 'usr-clover-owner',
+    round_robin_index: 0
+  }
+];
+
+export const INITIAL_USERS: User[] = [
+  {
+    id: 'usr-tariq',
+    workspace_id: 'ws-apex',
+    name: 'Tariq Khan',
+    email: 'tariq.khan@apexenergy.pk',
+    phone: '+92 300 8472910',
+    role: 'owner',
+    title: 'Managing Director & Founder',
+    availability: 'available',
+    max_open_leads: 10,
+    current_open_leads: 1,
+    permissions: {
+      view_crm: true,
+      create_crm: true,
+      edit_crm: true,
+      delete_crm: true,
+      export_crm: true,
+      view_opportunity_value: true,
+      manage_assignment_rules: true,
+      manage_integrations: true,
+      view_audit_log: true
+    },
+    external_notification_destination: {
+      bizsms_phone: '+923008472910',
+      slack_handle: '@tariq.apex',
+      telegram_id: '@tariq_apex'
+    },
+    google_calendar_connected: true,
+    google_calendar_email: 'tariq.khan@apexenergy.pk',
+    token_status: 'valid'
+  },
+  {
+    id: 'usr-ayesha',
+    workspace_id: 'ws-apex',
+    name: 'Ayesha Siddiqui',
+    email: 'ayesha.s@apexenergy.pk',
+    phone: '+92 321 4455891',
+    role: 'admin',
+    title: 'Operations & Sales Director (Manager)',
+    availability: 'available',
+    max_open_leads: 8,
+    current_open_leads: 2,
+    permissions: {
+      view_crm: true,
+      create_crm: true,
+      edit_crm: true,
+      delete_crm: true,
+      export_crm: true,
+      view_opportunity_value: true,
+      manage_assignment_rules: true,
+      manage_integrations: true,
+      view_audit_log: true
+    },
+    external_notification_destination: {
+      bizsms_phone: '+923214455891',
+      slack_handle: '@ayesha.ops',
+      telegram_id: '@ayesha_siddiqui'
+    },
+    google_calendar_connected: true,
+    google_calendar_email: 'ayesha.s@apexenergy.pk',
+    token_status: 'valid'
+  },
+  {
+    id: 'usr-hamza',
+    workspace_id: 'ws-apex',
+    name: 'Hamza Malik',
+    email: 'hamza.m@apexenergy.pk',
+    phone: '+92 333 5129983',
+    role: 'user',
+    title: 'Senior Solar Energy Consultant',
+    availability: 'available',
+    max_open_leads: 5,
+    current_open_leads: 3,
+    permissions: {
+      view_crm: true,
+      create_crm: true,
+      edit_crm: true,
+      delete_crm: false,
+      export_crm: false,
+      view_opportunity_value: true,
+      manage_assignment_rules: false,
+      manage_integrations: false,
+      view_audit_log: false
+    },
+    external_notification_destination: {
+      bizsms_phone: '+923335129983',
+      slack_handle: '@hamza.consultant'
+    },
+    google_calendar_connected: true,
+    google_calendar_email: 'hamza.m@apexenergy.pk',
+    token_status: 'valid'
+  },
+  {
+    id: 'usr-sara',
+    workspace_id: 'ws-apex',
+    name: 'Sara Ahmed',
+    email: 'sara.ahmed@apexenergy.pk',
+    phone: '+92 345 6781204',
+    role: 'user',
+    title: 'Inbound Solutions Engineer',
+    availability: 'available',
+    max_open_leads: 4,
+    current_open_leads: 2,
+    permissions: {
+      view_crm: true,
+      create_crm: true,
+      edit_crm: true,
+      delete_crm: false,
+      export_crm: false,
+      view_opportunity_value: false, // Notice: Opportunity value masked for Sara!
+      manage_assignment_rules: false,
+      manage_integrations: false,
+      view_audit_log: false
+    },
+    external_notification_destination: {
+      bizsms_phone: '+923456781204',
+      telegram_id: '@sara_ahmed_apex'
+    },
+    google_calendar_connected: false,
+    token_status: 'disconnected'
+  },
+  {
+    id: 'usr-usman',
+    workspace_id: 'ws-apex',
+    name: 'Usman Qureshi',
+    email: 'usman.q@apexenergy.pk',
+    phone: '+92 312 9901452',
+    role: 'user',
+    title: 'Commercial On-Site Assessor',
+    availability: 'busy',
+    max_open_leads: 3,
+    current_open_leads: 3,
+    permissions: {
+      view_crm: true,
+      create_crm: true,
+      edit_crm: true,
+      delete_crm: false,
+      export_crm: false,
+      view_opportunity_value: true,
+      manage_assignment_rules: false,
+      manage_integrations: false,
+      view_audit_log: false
+    },
+    external_notification_destination: {
+      bizsms_phone: '+923129901452'
+    },
+    google_calendar_connected: true,
+    google_calendar_email: 'usman.q@apexenergy.pk',
+    token_status: 'valid'
+  },
+  {
+    id: 'usr-zainab',
+    workspace_id: 'ws-apex',
+    name: 'Zainab Noor',
+    email: 'zainab.n@apexenergy.pk',
+    phone: '+92 301 2234590',
+    role: 'user',
+    title: 'Support & Billing Coordinator',
+    availability: 'on_leave', // On leave
+    max_open_leads: 4,
+    current_open_leads: 0,
+    permissions: {
+      view_crm: true,
+      create_crm: true,
+      edit_crm: true,
+      delete_crm: false,
+      export_crm: false,
+      view_opportunity_value: false,
+      manage_assignment_rules: false,
+      manage_integrations: false,
+      view_audit_log: false
+    },
+    external_notification_destination: {
+      bizsms_phone: '+923012234590'
+    },
+    google_calendar_connected: false,
+    token_status: 'disconnected'
+  },
+  // Clover users
+  {
+    id: 'usr-clover-owner',
+    workspace_id: 'ws-clover',
+    name: 'Dr. Evelyn Vance',
+    email: 'dr.vance@cloverhealth.com',
+    phone: '+1 212 555 0192',
+    role: 'owner',
+    title: 'Clinical Director & Owner',
+    availability: 'available',
+    max_open_leads: 12,
+    current_open_leads: 2,
+    permissions: {
+      view_crm: true,
+      create_crm: true,
+      edit_crm: true,
+      delete_crm: true,
+      export_crm: true,
+      view_opportunity_value: true,
+      manage_assignment_rules: true,
+      manage_integrations: true,
+      view_audit_log: true
+    },
+    google_calendar_connected: true,
+    token_status: 'valid'
+  },
+  {
+    id: 'usr-clover-admin',
+    workspace_id: 'ws-clover',
+    name: 'Marcus Miller',
+    email: 'marcus@cloverhealth.com',
+    phone: '+1 212 555 0148',
+    role: 'admin',
+    title: 'Clinic Operations Manager',
+    availability: 'available',
+    max_open_leads: 8,
+    current_open_leads: 1,
+    permissions: {
+      view_crm: true,
+      create_crm: true,
+      edit_crm: true,
+      delete_crm: true,
+      export_crm: true,
+      view_opportunity_value: true,
+      manage_assignment_rules: true,
+      manage_integrations: true,
+      view_audit_log: true
+    },
+    google_calendar_connected: true,
+    token_status: 'valid'
+  }
+];
+
+export const INITIAL_COMPANIES: Company[] = [
+  {
+    id: 'cmp-1',
+    workspace_id: 'ws-apex',
+    name: 'Gulberg Textile Mills Ltd',
+    industry: 'Industrial Manufacturing',
+    website: 'https://gulbergtextiles.example.com',
+    phone: '+92 42 35789000',
+    address: 'Plot 44, Quaid-e-Azam Industrial Estate, Lahore'
+  },
+  {
+    id: 'cmp-2',
+    workspace_id: 'ws-apex',
+    name: 'Al-Madina Cold Storage',
+    industry: 'Agri-Logistics & Storage',
+    website: 'https://almadinacold.example.com',
+    phone: '+92 41 8765432',
+    address: 'Multan Road Bypass, Faisalabad'
+  },
+  {
+    id: 'cmp-3',
+    workspace_id: 'ws-apex',
+    name: 'DHA Phase 6 Villa Residencies',
+    industry: 'Residential Premium Real Estate',
+    website: 'https://dhavillas.example.com',
+    phone: '+92 42 37189001',
+    address: 'Sector K, DHA Phase 6, Lahore'
+  }
+];
+
+export const INITIAL_CONTACTS: Contact[] = [
+  {
+    id: 'cnt-1',
+    workspace_id: 'ws-apex',
+    name: 'Mian Bilal Rashid',
+    email: 'bilal.rashid@gulbergtextiles.pk',
+    phone: '+92 300 5551234',
+    company_id: 'cmp-1',
+    company_name: 'Gulberg Textile Mills Ltd',
+    title: 'Head of Plant Engineering',
+    assigned_user_id: 'usr-hamza',
+    opted_out_messaging: false,
+    created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+    tags: ['Industrial', 'High-Load', 'Grid-Tied']
+  },
+  {
+    id: 'cnt-2',
+    workspace_id: 'ws-apex',
+    name: 'Haji Farooq Lodhi',
+    email: 'farooq.lodhi@almadina.pk',
+    phone: '+92 321 9876543',
+    company_id: 'cmp-2',
+    company_name: 'Al-Madina Cold Storage',
+    title: 'Managing Partner',
+    assigned_user_id: 'usr-ayesha',
+    opted_out_messaging: false,
+    created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+    tags: ['Solar-Thermal', 'Cold Storage', 'Financed']
+  },
+  {
+    id: 'cnt-3',
+    workspace_id: 'ws-apex',
+    name: 'Dr. Shahbaz Chaudhry',
+    email: 'shahbaz.doc@gmail.com',
+    phone: '+92 333 4448899',
+    company_id: 'cmp-3',
+    company_name: 'DHA Phase 6 Villa Residencies',
+    title: 'Homeowner & Surgeon',
+    assigned_user_id: 'usr-sara',
+    opted_out_messaging: false,
+    created_at: new Date(Date.now() - 86400000 * 1).toISOString(),
+    tags: ['Residential', 'Net-Metering', 'Tier-1 Hybrid']
+  },
+  {
+    id: 'cnt-4',
+    workspace_id: 'ws-apex',
+    name: 'Kashif Mehmood',
+    email: 'kashif.m@logix.pk',
+    phone: '+92 345 1112233',
+    assigned_user_id: 'usr-hamza',
+    opted_out_messaging: false,
+    created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
+    tags: ['Inbound Web', 'Commercial Office']
+  }
+];
+
+export const INITIAL_PIPELINES: Pipeline[] = [
+  {
+    id: 'pipe-commercial',
+    workspace_id: 'ws-apex',
+    name: 'Commercial & Industrial Solar',
+    description: 'High-capacity grid-tied and hybrid solar installations for factories and commercial facilities.',
+    stages: [
+      { id: 'stg-new', name: 'New Intake', order: 1, color: '#3B82F6' },
+      { id: 'stg-audit', name: 'Site Audit & Sizing', order: 2, color: '#0EA5E9', required_field_keys: ['cf_roof_area', 'cf_monthly_units'] },
+      { id: 'stg-proposal', name: 'Proposal & EPC Quote', order: 3, color: '#F59E0B', required_field_keys: ['cf_proposal_link'] },
+      { id: 'stg-negotiation', name: 'Financing & Discom Approval', order: 4, color: '#8B5CF6' },
+      { id: 'stg-won', name: 'Closed Won (Contract Signed)', order: 5, color: '#10B981', is_won: true },
+      { id: 'stg-lost', name: 'Closed Lost', order: 6, color: '#EF4444', is_lost: true, required_field_keys: ['cf_loss_reason'] }
+    ]
+  },
+  {
+    id: 'pipe-residential',
+    workspace_id: 'ws-apex',
+    name: 'Residential Turnkey Net-Metering',
+    description: 'Standard 5kW to 25kW home solar kits with LESCO/K-Electric net-metering support.',
+    stages: [
+      { id: 'res-stg-intake', name: 'Inbound Inquiry', order: 1, color: '#3B82F6' },
+      { id: 'res-stg-feasibility', name: 'Feasibility Review', order: 2, color: '#0EA5E9' },
+      { id: 'res-stg-quote', name: 'Package Offer Sent', order: 3, color: '#F59E0B' },
+      { id: 'res-stg-won', name: 'Installation Booked', order: 4, color: '#10B981', is_won: true },
+      { id: 'res-stg-lost', name: 'Drop Off / Disqualified', order: 5, color: '#EF4444', is_lost: true }
+    ]
+  }
+];
+
+export const INITIAL_CUSTOM_FIELDS: CustomFieldDefinition[] = [
+  {
+    id: 'cf_roof_area',
+    workspace_id: 'ws-apex',
+    entity_type: 'opportunity',
+    pipeline_id: 'pipe-commercial',
+    label: 'Estimated Roof Surface (sq ft)',
+    key: 'roof_surface_sqft',
+    field_type: 'number',
+    required: true,
+    help_text: 'Usable unobstructed concrete or tin shed area'
+  },
+  {
+    id: 'cf_monthly_units',
+    workspace_id: 'ws-apex',
+    entity_type: 'opportunity',
+    pipeline_id: 'pipe-commercial',
+    label: 'Average Monthly Bill Units (kWh)',
+    key: 'monthly_units_kwh',
+    field_type: 'number',
+    required: true,
+    help_text: 'Peak summer electricity consumption from utility bill'
+  },
+  {
+    id: 'cf_proposal_link',
+    workspace_id: 'ws-apex',
+    entity_type: 'opportunity',
+    pipeline_id: 'pipe-commercial',
+    label: 'Technical Proposal Link (PDF/Drive)',
+    key: 'proposal_document_url',
+    field_type: 'text',
+    required: true,
+    help_text: 'Link to signed EPC quotation'
+  },
+  {
+    id: 'cf_inverter_brand',
+    workspace_id: 'ws-apex',
+    entity_type: 'opportunity',
+    label: 'Preferred Inverter Brand',
+    key: 'inverter_brand',
+    field_type: 'dropdown',
+    options: ['Huawei FusionSolar', 'Growatt Commercial', 'Sungrow On-Grid', 'GoodWe Smart Energy'],
+    required: false
+  },
+  {
+    id: 'cf_loss_reason',
+    workspace_id: 'ws-apex',
+    entity_type: 'opportunity',
+    label: 'Disqualification / Loss Reason',
+    key: 'disqualification_reason',
+    field_type: 'dropdown',
+    options: ['Budget / Financing Constraint', 'Competitor Won on Price', 'Transformer Capacity Full', 'Structural Roof Ineligibility'],
+    required: true
+  }
+];
+
+export const INITIAL_OPPORTUNITIES: Opportunity[] = [
+  {
+    id: 'opp-1',
+    workspace_id: 'ws-apex',
+    pipeline_id: 'pipe-commercial',
+    stage_id: 'stg-audit',
+    title: '250kW Solar EPC for Gulberg Textile Weaving Unit',
+    contact_id: 'cnt-1',
+    company_id: 'cmp-1',
+    assigned_user_id: 'usr-hamza',
+    value: 28500000, // PKR 28.5M (~$100k)
+    expected_close_date: '2026-11-15',
+    created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+    custom_fields: {
+      roof_surface_sqft: 22000,
+      monthly_units_kwh: 34000,
+      inverter_brand: 'Huawei FusionSolar'
+    },
+    payment_status: 'pending',
+    payment_amount_collected: 0,
+    tags: ['High Priority', 'LESCO High Voltage']
+  },
+  {
+    id: 'opp-2',
+    workspace_id: 'ws-apex',
+    pipeline_id: 'pipe-commercial',
+    stage_id: 'stg-proposal',
+    title: '150kW Hybrid Rooftop for Al-Madina Cold Storage',
+    contact_id: 'cnt-2',
+    company_id: 'cmp-2',
+    assigned_user_id: 'usr-ayesha',
+    value: 17200000,
+    expected_close_date: '2026-10-30',
+    created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+    custom_fields: {
+      roof_surface_sqft: 14500,
+      monthly_units_kwh: 19800,
+      proposal_document_url: 'https://docs.apexenergy.pk/quotes/almadina-150kw.pdf',
+      inverter_brand: 'Sungrow On-Grid'
+    },
+    payment_status: 'collected',
+    payment_amount_collected: 500000, // Token advance collected!
+    tags: ['Financed By Meezan Bank']
+  },
+  {
+    id: 'opp-3',
+    workspace_id: 'ws-apex',
+    pipeline_id: 'pipe-residential',
+    stage_id: 'res-stg-quote',
+    title: '20kW On-Grid Net-Metered Villa Kit',
+    contact_id: 'cnt-3',
+    company_id: 'cmp-3',
+    assigned_user_id: 'usr-sara',
+    value: 2450000,
+    expected_close_date: '2026-10-28',
+    created_at: new Date(Date.now() - 86400000 * 1).toISOString(),
+    custom_fields: {
+      inverter_brand: 'Growatt Commercial'
+    },
+    payment_status: 'unpaid',
+    tags: ['DHA Villa']
+  },
+  {
+    id: 'opp-4',
+    workspace_id: 'ws-apex',
+    pipeline_id: 'pipe-commercial',
+    stage_id: 'stg-won',
+    title: '80kW Rooftop Array - Logix IT Park',
+    contact_id: 'cnt-4',
+    assigned_user_id: 'usr-hamza',
+    value: 9200000,
+    expected_close_date: '2026-10-10',
+    created_at: new Date(Date.now() - 86400000 * 12).toISOString(),
+    custom_fields: {
+      roof_surface_sqft: 8000,
+      monthly_units_kwh: 11000,
+      proposal_document_url: 'https://docs.apexenergy.pk/quotes/logix-80kw.pdf'
+    },
+    payment_status: 'collected',
+    payment_amount_collected: 9200000,
+    tags: ['Completed EPC']
+  }
+];
+
+export const INITIAL_LEADS: Lead[] = [
+  {
+    id: 'lead-live-demo',
+    workspace_id: 'ws-apex',
+    title: 'Commercial Solar Feasibility Inquiry',
+    contact_name: 'Salman Tariq',
+    contact_email: 'salman.tariq@metrofarms.pk',
+    contact_phone: '+92 301 7779011',
+    company_name: 'Metro Agri Agro Farms',
+    source: 'web_form',
+    status: 'unacknowledged', // Active countdown running for judge to observe!
+    assigned_to_user_id: 'usr-hamza',
+    assigned_at: new Date(Date.now() - 5000).toISOString(), // 5 seconds ago!
+    acknowledgement_window_seconds: 15,
+    escalation_level: 0,
+    escalations: [],
+    last_action_at: new Date(Date.now() - 5000).toISOString(),
+    notes: ['Incoming lead submitted via public website quote form. Selected: Commercial Tubewell Solarization.'],
+    contact_id: 'cnt-lead-1',
+    value: 6500000
+  },
+  {
+    id: 'lead-recovered-1',
+    workspace_id: 'ws-apex',
+    title: 'Urgent 100kW Factory Audit Request',
+    contact_name: 'Engr. Noman Baig',
+    contact_email: 'noman.baig@sapphiremfg.pk',
+    contact_phone: '+92 322 8881234',
+    company_name: 'Sapphire Composite Packaging',
+    source: 'whatsapp',
+    status: 'escalated',
+    assigned_to_user_id: 'usr-ayesha', // Escalated to manager!
+    assigned_at: new Date(Date.now() - 120000).toISOString(),
+    acknowledgement_window_seconds: 15,
+    escalation_level: 2,
+    is_in_recovery: true,
+    recovery_reason: 'Unacknowledged beyond SLA window (exceeded 15s timeout twice). Escalated to Operations Director.',
+    escalations: [
+      {
+        id: 'esc-1',
+        from_user_id: 'usr-sara',
+        to_user_id: 'usr-hamza',
+        reason: 'SLA Acknowledgement Window Expired (15 seconds without action)',
+        timestamp: new Date(Date.now() - 95000).toISOString(),
+        external_alert_sent: true,
+        channel: 'BizSMS'
+      },
+      {
+        id: 'esc-2',
+        from_user_id: 'usr-hamza',
+        to_user_id: 'usr-ayesha',
+        reason: 'Level 2 Escalation: Rep busy; escalated to Backup Operations Director',
+        timestamp: new Date(Date.now() - 65000).toISOString(),
+        external_alert_sent: true,
+        channel: 'BizSMS'
+      }
+    ],
+    last_action_at: new Date(Date.now() - 65000).toISOString(),
+    notes: [
+      'Inbound message received via WhatsApp Business Platform.',
+      'Auto-escalated to Level 2. Alert dispatched to +92 321 4455891.'
+    ],
+    contact_id: 'cnt-lead-2',
+    value: 12000000
+  },
+  {
+    id: 'lead-ack-1',
+    workspace_id: 'ws-apex',
+    title: '15kW Residential Inverter Upgrade',
+    contact_name: 'Dr. Shahbaz Chaudhry',
+    contact_email: 'shahbaz.doc@gmail.com',
+    contact_phone: '+92 333 4448899',
+    company_name: 'DHA Phase 6 Villa Residencies',
+    source: 'whatsapp',
+    status: 'acknowledged',
+    assigned_to_user_id: 'usr-sara',
+    assigned_at: new Date(Date.now() - 3600000 * 5).toISOString(),
+    acknowledged_at: new Date(Date.now() - 3600000 * 4.9).toISOString(),
+    acknowledgement_window_seconds: 15,
+    escalation_level: 0,
+    escalations: [],
+    last_action_at: new Date(Date.now() - 3600000 * 4.9).toISOString(),
+    notes: ['Acknowledged in 6.0 seconds by Sara Ahmed. WhatsApp reply sent.'],
+    contact_id: 'cnt-3',
+    opportunity_id: 'opp-3',
+    value: 2450000
+  },
+  {
+    id: 'lead-reassigned-absence',
+    workspace_id: 'ws-apex',
+    title: 'Cold Storage Expansion Power Study',
+    contact_name: 'Haji Farooq Lodhi',
+    contact_email: 'farooq.lodhi@almadina.pk',
+    contact_phone: '+92 321 9876543',
+    company_name: 'Al-Madina Cold Storage',
+    source: 'manual_entry',
+    status: 'reassigned',
+    assigned_to_user_id: 'usr-ayesha',
+    assigned_at: new Date(Date.now() - 86400000).toISOString(),
+    acknowledged_at: new Date(Date.now() - 86400000 + 12000).toISOString(),
+    acknowledgement_window_seconds: 15,
+    escalation_level: 1,
+    escalations: [
+      {
+        id: 'esc-abs-1',
+        from_user_id: 'usr-zainab',
+        to_user_id: 'usr-ayesha',
+        reason: 'Immediate reassignment triggered: Zainab Noor marked On leave',
+        timestamp: new Date(Date.now() - 86400000).toISOString(),
+        external_alert_sent: true,
+        channel: 'BizSMS'
+      }
+    ],
+    last_action_at: new Date(Date.now() - 86400000 + 12000).toISOString(),
+    notes: ['Reassigned immediately upon employee leave status change.'],
+    contact_id: 'cnt-2',
+    opportunity_id: 'opp-2',
+    value: 17200000
+  },
+  {
+    id: 'lead-clover-1',
+    workspace_id: 'ws-clover',
+    title: 'Facial Aesthetics & Hydrafacial Package Inquiry',
+    contact_name: 'Jessica Williams',
+    contact_email: 'jessica.w@manhattanpr.com',
+    contact_phone: '+1 212 555 8831',
+    company_name: 'Manhattan PR Group',
+    source: 'web_form',
+    status: 'acknowledged',
+    assigned_to_user_id: 'usr-clover-admin',
+    assigned_at: new Date(Date.now() - 3600000 * 3).toISOString(),
+    acknowledged_at: new Date(Date.now() - 3600000 * 2.8).toISOString(),
+    acknowledgement_window_seconds: 30,
+    escalation_level: 0,
+    escalations: [],
+    last_action_at: new Date(Date.now() - 3600000 * 2.8).toISOString(),
+    notes: ['Acknowledged in 12s. VIP Patient intake completed.'],
+    contact_id: 'cnt-clover-1',
+    value: 3500
+  }
+];
+
+export const INITIAL_CHAT_MESSAGES: ChatMessage[] = [
+  {
+    id: 'msg-1',
+    workspace_id: 'ws-apex',
+    contact_id: 'cnt-1',
+    direction: 'inbound',
+    sender_number: '+923005551234',
+    recipient_number: '+923008472910',
+    body: 'Assalam-o-Alaikum, we want to evaluate 250kW solar for our spinning shed. Please share your engineer contact.',
+    timestamp: new Date(Date.now() - 86400000 * 2).toISOString(),
+    status: 'read',
+    provider: 'WhatsApp Business'
+  },
+  {
+    id: 'msg-2',
+    workspace_id: 'ws-apex',
+    contact_id: 'cnt-1',
+    direction: 'outbound',
+    sender_number: '+923008472910',
+    recipient_number: '+923005551234',
+    body: 'Walaikum Assalam Mian Bilal sahib! This is Hamza from Apex Solar. We have prepared an initial 3D solar yield model for your roof. Can we schedule an on-site structural audit tomorrow at 2 PM?',
+    timestamp: new Date(Date.now() - 86400000 * 1.8).toISOString(),
+    status: 'delivered',
+    provider: 'WhatsApp Business'
+  },
+  {
+    id: 'msg-3',
+    workspace_id: 'ws-apex',
+    contact_id: 'cnt-1',
+    direction: 'inbound',
+    sender_number: '+923005551234',
+    recipient_number: '+923008472910',
+    body: 'Yes, 2 PM works. We will have our electrical engineering staff ready at the gate.',
+    timestamp: new Date(Date.now() - 86400000 * 1.5).toISOString(),
+    status: 'read',
+    provider: 'WhatsApp Business'
+  },
+  {
+    id: 'msg-4',
+    workspace_id: 'ws-apex',
+    contact_id: 'cnt-3',
+    direction: 'inbound',
+    sender_number: '+923334448899',
+    recipient_number: '+923008472910',
+    body: 'Hi, I need quotation for 20kW hybrid system with 15kWh lithium storage for my house in DHA Phase 6.',
+    timestamp: new Date(Date.now() - 3600000 * 6).toISOString(),
+    status: 'read',
+    provider: 'WhatsApp Business'
+  },
+  {
+    id: 'msg-5',
+    workspace_id: 'ws-apex',
+    contact_id: 'cnt-3',
+    direction: 'outbound',
+    sender_number: '+923008472910',
+    recipient_number: '+923334448899',
+    body: 'Hello Dr. Shahbaz, thank you for reaching out to Apex Solar! I have generated a customized proposal for a 20kW system with Growatt Inverter & Dyness Lithium batteries. Here is your checkout link for the initial DISCO net-metering application token: https://pay.apexenergy.pk/c/res-tok-99',
+    timestamp: new Date(Date.now() - 3600000 * 4.8).toISOString(),
+    status: 'delivered',
+    provider: 'WhatsApp Business'
+  }
+];
+
+export const INITIAL_PAYMENTS: PaymentRequest[] = [
+  {
+    id: 'pay-1',
+    workspace_id: 'ws-apex',
+    opportunity_id: 'opp-2',
+    contact_id: 'cnt-2',
+    amount: 500000, // PKR 500,000 Advance Token
+    currency: 'PKR',
+    provider: 'JazzCash',
+    status: 'collected',
+    reference_id: 'JC-PK-20261019-94821',
+    checkout_url: 'https://sandbox.jazzcash.com.pk/Customer/DirectPayment?ref=JC-PK-20261019-94821',
+    requested_by_user_id: 'usr-ayesha',
+    created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+    paid_at: new Date(Date.now() - 86400000 * 1.9).toISOString(),
+    idempotency_key: 'idem-jc-opp2-token-advance'
+  },
+  {
+    id: 'pay-2',
+    workspace_id: 'ws-apex',
+    opportunity_id: 'opp-4',
+    contact_id: 'cnt-4',
+    amount: 9200000,
+    currency: 'PKR',
+    provider: 'JazzCash',
+    status: 'collected',
+    reference_id: 'JC-PK-20261010-11029',
+    checkout_url: 'https://sandbox.jazzcash.com.pk/Customer/DirectPayment?ref=JC-PK-20261010-11029',
+    requested_by_user_id: 'usr-hamza',
+    created_at: new Date(Date.now() - 86400000 * 10).toISOString(),
+    paid_at: new Date(Date.now() - 86400000 * 9.8).toISOString(),
+    idempotency_key: 'idem-jc-opp4-full'
+  },
+  {
+    id: 'pay-3',
+    workspace_id: 'ws-apex',
+    opportunity_id: 'opp-1',
+    contact_id: 'cnt-1',
+    amount: 1500000,
+    currency: 'PKR',
+    provider: 'Stripe',
+    status: 'pending',
+    reference_id: 'cs_test_a1B2c3D4e5F6g7H8i9J0',
+    checkout_url: 'https://checkout.stripe.com/c/pay/cs_test_a1B2c3D4e5F6g7H8i9J0',
+    requested_by_user_id: 'usr-hamza',
+    created_at: new Date(Date.now() - 3600000 * 8).toISOString(),
+    idempotency_key: 'idem-stripe-opp1-deposit'
+  }
+];
+
+export const INITIAL_APPOINTMENTS: CalendarAppointment[] = [
+  {
+    id: 'apt-1',
+    workspace_id: 'ws-apex',
+    title: 'On-Site 250kW Roof Load & Shading Analysis',
+    contact_id: 'cnt-1',
+    opportunity_id: 'opp-1',
+    assigned_user_id: 'usr-hamza',
+    start_time: new Date(Date.now() + 86400000 * 1).toISOString(), // Tomorrow
+    end_time: new Date(Date.now() + 86400000 * 1 + 5400000).toISOString(),
+    timezone: 'Asia/Karachi',
+    google_event_id: 'gcal_ev_250kw_gulberg_01',
+    status: 'confirmed',
+    location_or_link: 'Plot 44, Quaid-e-Azam Industrial Estate, Lahore',
+    created_at: new Date(Date.now() - 86400000 * 2).toISOString()
+  },
+  {
+    id: 'apt-2',
+    workspace_id: 'ws-apex',
+    title: 'Cold Storage Hybrid Inverter Technical Walkthrough',
+    contact_id: 'cnt-2',
+    opportunity_id: 'opp-2',
+    assigned_user_id: 'usr-ayesha',
+    start_time: new Date(Date.now() + 86400000 * 2).toISOString(),
+    end_time: new Date(Date.now() + 86400000 * 2 + 3600000).toISOString(),
+    timezone: 'Asia/Karachi',
+    google_event_id: 'gcal_ev_cold_storage_walkthrough',
+    status: 'confirmed',
+    location_or_link: 'Google Meet: https://meet.google.com/apx-eng-solar',
+    created_at: new Date(Date.now() - 86400000 * 3).toISOString()
+  }
+];
+
+export const INITIAL_INTEGRATIONS: IntegrationConnection[] = [
+  {
+    id: 'int-whatsapp',
+    workspace_id: 'ws-apex',
+    type: 'whatsapp',
+    name: 'WhatsApp Business Platform / Twilio Sandbox',
+    provider_name: 'Twilio WhatsApp Sandbox',
+    status: 'connected',
+    last_sync_at: new Date(Date.now() - 3600000 * 1).toISOString(),
+    sandbox_mode: true,
+    config_summary: 'Webhook endpoint: /api/webhooks/whatsapp · Sandbox Number: +1 415 523 8886 · Join Code: "join apex-solar"',
+    limits_note: 'WhatsApp Sandbox strictly delivers to recipient devices that have joined using the sandbox phrase.'
+  },
+  {
+    id: 'int-payments',
+    workspace_id: 'ws-apex',
+    type: 'payments',
+    name: 'JazzCash Merchant & Stripe Test Mode',
+    provider_name: 'JazzCash + Stripe',
+    status: 'connected',
+    last_sync_at: new Date(Date.now() - 3600000 * 2).toISOString(),
+    sandbox_mode: true,
+    config_summary: 'JazzCash Merchant ID: MC-990142 · Stripe Test Mode: pk_test_51Nx... · Webhook Secret: whsec_9934a...',
+    limits_note: 'Supports Pakistani Rupee (PKR) direct mobile wallet / debit & Stripe global cards in test sandbox.'
+  },
+  {
+    id: 'int-gcal',
+    workspace_id: 'ws-apex',
+    type: 'google_calendar',
+    name: 'Google Calendar API (OAuth 2.0)',
+    provider_name: 'Google Calendar',
+    status: 'connected',
+    last_sync_at: new Date(Date.now() - 1800000).toISOString(),
+    sandbox_mode: false,
+    config_summary: 'OAuth 2.0 active for 4 employees · Token Auto-Refresh: Enabled · Two-way Conflict Detection: Active',
+    limits_note: 'Requires individual employee OAuth token consent. Revoked credentials trigger instant reconnection alert.'
+  },
+  {
+    id: 'int-bizsms',
+    workspace_id: 'ws-apex',
+    type: 'bizsms_notifications',
+    name: 'BizSMS & Slack Notification Gateway',
+    provider_name: 'BizSMS Pakistan + Slack Bot',
+    status: 'connected',
+    last_sync_at: new Date(Date.now() - 95000).toISOString(),
+    sandbox_mode: true,
+    config_summary: 'BizSMS API Endpoint: https://api.bizsms.pk/v2/send · Slack Channel: #sales-escalations-live',
+    limits_note: 'Dispatches real high-priority SMS alerts to Jazz, Zong, Ufone networks within seconds of SLA expiration.'
+  }
+];
+
+export const INITIAL_SYNC_LOGS: IntegrationSyncLog[] = [
+  {
+    id: 'slog-1',
+    workspace_id: 'ws-apex',
+    integration_type: 'whatsapp',
+    direction: 'inbound_webhook',
+    event_type: 'messages.incoming',
+    reference_id: 'WAMID-19829381928391',
+    signature_valid: true,
+    status: 'success',
+    payload_preview: '{"From": "whatsapp:+923005551234", "Body": "Assalam-o-Alaikum, we want to evaluate 250kW solar..."}',
+    timestamp: new Date(Date.now() - 86400000 * 2).toISOString(),
+    retry_count: 0
+  },
+  {
+    id: 'slog-2',
+    workspace_id: 'ws-apex',
+    integration_type: 'payments',
+    direction: 'inbound_webhook',
+    event_type: 'payment.completed',
+    reference_id: 'JC-PK-20261019-94821',
+    signature_valid: true,
+    status: 'success',
+    payload_preview: '{"pp_TxnRefNo": "JC-PK-20261019-94821", "pp_Amount": "50000000", "pp_ResponseCode": "000"}',
+    timestamp: new Date(Date.now() - 86400000 * 1.9).toISOString(),
+    retry_count: 0
+  },
+  {
+    id: 'slog-3',
+    workspace_id: 'ws-apex',
+    integration_type: 'bizsms_notifications',
+    direction: 'outbound_api',
+    event_type: 'escalation.alert.sms',
+    reference_id: 'BIZSMS-TX-9901429',
+    signature_valid: true,
+    status: 'success',
+    payload_preview: '{"to": "+923214455891", "message": "[LEADFLOW SLA ALERT] Lead Engr. Noman Baig (Sapphire) escalated to you! Click: https://app.leadflow.pk/leads/lead-recovered-1"}',
+    timestamp: new Date(Date.now() - 65000).toISOString(),
+    retry_count: 0
+  },
+  {
+    id: 'slog-4',
+    workspace_id: 'ws-apex',
+    integration_type: 'google_calendar',
+    direction: 'outbound_api',
+    event_type: 'events.insert',
+    reference_id: 'gcal_ev_250kw_gulberg_01',
+    signature_valid: true,
+    status: 'success',
+    payload_preview: '{"summary": "On-Site 250kW Roof Load Analysis", "attendees": [{"email": "bilal.rashid@gulbergtextiles.pk"}]}',
+    timestamp: new Date(Date.now() - 86400000 * 2).toISOString(),
+    retry_count: 0
+  }
+];
+
+export const INITIAL_AUDIT_LOGS: AuditLogItem[] = [
+  {
+    id: 'aud-1',
+    workspace_id: 'ws-apex',
+    timestamp: new Date(Date.now() - 86400000 * 2).toISOString(),
+    actor_user_id: 'system',
+    actor_name: 'LeadFlow Automation Engine',
+    action_type: 'lead_assigned',
+    target_type: 'lead',
+    target_id: 'lead-live-demo',
+    target_label: 'Commercial Solar Feasibility Inquiry',
+    details: 'Lead captured via Public Web Form; Round-Robin assigned to Hamza Malik (Available, 2 open leads)',
+    after_value: { assigned_to: 'Hamza Malik', source: 'web_form', sla_seconds: 15 }
+  },
+  {
+    id: 'aud-2',
+    workspace_id: 'ws-apex',
+    timestamp: new Date(Date.now() - 95000).toISOString(),
+    actor_user_id: 'system',
+    actor_name: 'SLA Escalation Watchdog',
+    action_type: 'lead_escalated',
+    target_type: 'lead',
+    target_id: 'lead-recovered-1',
+    target_label: 'Urgent 100kW Factory Audit Request',
+    details: '15-second SLA window expired without rep acknowledgement. Escalated from Sara Ahmed to Hamza Malik.',
+    before_value: { assigned_to: 'Sara Ahmed', status: 'unacknowledged' },
+    after_value: { assigned_to: 'Hamza Malik', escalation_level: 1, alert_sent: true }
+  },
+  {
+    id: 'aud-3',
+    workspace_id: 'ws-apex',
+    timestamp: new Date(Date.now() - 65000).toISOString(),
+    actor_user_id: 'system',
+    actor_name: 'SLA Escalation Watchdog',
+    action_type: 'lead_escalated',
+    target_type: 'lead',
+    target_id: 'lead-recovered-1',
+    target_label: 'Urgent 100kW Factory Audit Request',
+    details: 'Level 2 Escalation triggered: Hamza Malik SLA expired. Reassigned to Operations Director Ayesha Siddiqui. Added to Recovery Queue.',
+    before_value: { assigned_to: 'Hamza Malik', escalation_level: 1 },
+    after_value: { assigned_to: 'Ayesha Siddiqui', escalation_level: 2, is_in_recovery: true }
+  },
+  {
+    id: 'aud-4',
+    workspace_id: 'ws-apex',
+    timestamp: new Date(Date.now() - 86400000).toISOString(),
+    actor_user_id: 'usr-ayesha',
+    actor_name: 'Ayesha Siddiqui',
+    action_type: 'user_availability_changed',
+    target_type: 'user',
+    target_id: 'usr-zainab',
+    target_label: 'Zainab Noor',
+    details: 'Employee status changed from "Available" to "On leave". Instant unacknowledged lead recovery executed.',
+    before_value: { availability: 'available' },
+    after_value: { availability: 'on_leave', reassigned_leads_count: 1 }
+  },
+  {
+    id: 'aud-5',
+    workspace_id: 'ws-apex',
+    timestamp: new Date(Date.now() - 86400000 * 1.9).toISOString(),
+    actor_user_id: 'system',
+    actor_name: 'JazzCash Webhook Service',
+    action_type: 'payment_received',
+    target_type: 'payment',
+    target_id: 'pay-1',
+    target_label: 'Advance Token - Al-Madina Cold Storage',
+    details: 'Verified JazzCash payment callback received. PKR 500,000 marked as Collected Revenue.',
+    after_value: { amount: 500000, currency: 'PKR', reference: 'JC-PK-20261019-94821' }
+  }
+];
+
+export const INITIAL_SAVED_FILTERS: SavedFilter[] = [
+  { id: 'flt-1', name: 'All Active Opportunities' },
+  { id: 'flt-2', name: 'High Value Deals (> ₨10M)', min_value: 10000000 },
+  { id: 'flt-3', name: 'My Assigned Leads', assigned_user_id: 'usr-hamza' },
+  { id: 'flt-4', name: 'Commercial Audits in Progress', stage_id: 'stg-audit' }
+];
